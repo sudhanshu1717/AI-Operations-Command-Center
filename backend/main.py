@@ -4,11 +4,13 @@ from pydantic import BaseModel
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 import pandas as pd
 from ortools.linear_solver import pywraplp
 from fastapi.responses import FileResponse
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+
 
 # Load environment variables
 load_dotenv()
@@ -252,9 +254,12 @@ def get_metrics():
 @app.post("/download-report")
 def download_report():
 
-    warehouse_df = pd.read_csv("../data/warehouse.csv")
+       BASE_DIR = Path(__file__).resolve().parent.parent
+       warehouse_path = BASE_DIR / "data" / "warehouse.csv"
 
-    prompt = f"""
+       warehouse_df = pd.read_csv(warehouse_path)
+
+       prompt = f"""
     You are a Chief Operations Officer.
 
     Current warehouse data:
@@ -271,23 +276,23 @@ def download_report():
     Keep it professional.
     """
 
-    response = model.generate_content(prompt)
+       response = model.generate_content(prompt)
 
-    pdf_file = "operations_report.pdf"
+       pdf_file = "/tmp/operations_report.pdf"
 
-    doc = SimpleDocTemplate(pdf_file)
+       doc = SimpleDocTemplate(pdf_file)
 
-    styles = getSampleStyleSheet()
+       styles = getSampleStyleSheet()
 
-    content = [
+       content = [
         Paragraph("AI Operations Command Center Report", styles["Title"]),
         Spacer(1, 12),
         Paragraph(response.text.replace("\n", "<br/>"), styles["BodyText"])
     ]
 
-    doc.build(content)
+       doc.build(content)
 
-    return FileResponse(
+       return FileResponse(
         pdf_file,
         media_type="application/pdf",
         filename="Operations_Report.pdf"
