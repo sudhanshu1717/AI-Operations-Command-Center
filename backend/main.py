@@ -125,53 +125,61 @@ def optimize_inventory():
 @app.post("/decision")
 def decision_support():
 
-    warehouse_df = pd.read_csv("../data/warehouse.csv")
+    try:
+        warehouse_df = pd.read_csv("../data/warehouse.csv")
 
-    solver = pywraplp.Solver.CreateSolver("GLOP")
+        solver = pywraplp.Solver.CreateSolver("GLOP")
 
-    shift_to_b = solver.NumVar(0, 300, "shift_to_b")
+        shift_to_b = solver.NumVar(0, 300, "shift_to_b")
 
-    solver.Maximize(shift_to_b)
+        solver.Maximize(shift_to_b)
 
-    solver.Add(600 + shift_to_b <= 1200)
+        solver.Add(600 + shift_to_b <= 1200)
 
-    status = solver.Solve()
+        status = solver.Solve()
 
-    recommendation = ""
+        recommendation = ""
 
-    if status == pywraplp.Solver.OPTIMAL:
-        recommendation = (
-            f"Move {shift_to_b.solution_value():.0f} units "
-            f"from Warehouse C to Warehouse B"
-        )
+        if status == pywraplp.Solver.OPTIMAL:
+            recommendation = (
+                f"Move {shift_to_b.solution_value():.0f} units "
+                f"from Warehouse C to Warehouse B"
+            )
 
-    prompt = f"""
-    You are a Chief Operations Officer.
+        prompt = f"""
+        You are a Chief Operations Officer.
 
-    Current warehouse data:
+        Current warehouse data:
 
-    {warehouse_df.to_string(index=False)}
+        {warehouse_df.to_string(index=False)}
 
-    Optimization recommendation:
+        Optimization recommendation:
 
-    {recommendation}
+        {recommendation}
 
-    Generate:
+        Generate:
 
-    1. Executive Summary
-    2. Risk Assessment
-    3. Business Impact
-    4. Recommended Actions
+        1. Executive Summary
+        2. Risk Assessment
+        3. Business Impact
+        4. Recommended Actions
 
-    Keep it professional.
-    """
+        Keep it professional.
+        """
 
-    response = model.generate_content(prompt)
+        response = model.generate_content(prompt)
 
-    return {
-        "optimization": recommendation,
-        "executive_report": response.text
-    }
+        return {
+            "optimization": recommendation,
+            "executive_report": response.text
+        }
+
+    except Exception as e:
+
+        return {
+            "optimization": recommendation if 'recommendation' in locals() else "No recommendation",
+            "executive_report": f"AI service unavailable or quota exceeded. Error: {str(e)}"
+        }
 
 @app.get("/metrics")
 def get_metrics():
