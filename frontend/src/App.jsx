@@ -29,7 +29,7 @@ useEffect(() => {
 
 const fetchMetrics = async () => {
   const res = await axios.get(
-    "http://127.0.0.1:8000/metrics"
+    "https://ai-operations-command-center.onrender.com/metrics"
   );
 
   setMetrics(res.data);
@@ -41,7 +41,7 @@ const askAI = async () => {
     console.log("Question:", question);
 
     const res = await axios.post(
-      "http://127.0.0.1:8000/ask",
+      "https://ai-operations-command-center.onrender.com/ask",
       {
         question: question,
       }
@@ -61,7 +61,7 @@ const askAI = async () => {
   }
 };
   const runOptimization = async () => {
-    const res = await axios.post("http://127.0.0.1:8000/optimize");
+    const res = await axios.post("https://ai-operations-command-center.onrender.com/optimize");
 
     setOptimization(res.data.recommendation);
   };
@@ -73,7 +73,7 @@ const askAI = async () => {
      formData.append("file", warehouseFile);
 
      await axios.post(
-       "http://127.0.0.1:8000/upload-warehouse",
+       "https://ai-operations-command-center.onrender.com/upload-warehouse",
         formData
         );
 
@@ -90,7 +90,7 @@ const uploadInventory = async () => {
   formData.append("file", inventoryFile);
 
   await axios.post(
-    "http://127.0.0.1:8000/upload-inventory",
+    "https://ai-operations-command-center.onrender.com/upload-inventory",
     formData
   );
 
@@ -98,14 +98,14 @@ const uploadInventory = async () => {
 };
 
   const generateReport = async () => {
-    const res = await axios.post("http://127.0.0.1:8000/decision");
+    const res = await axios.post("https://ai-operations-command-center.onrender.com/decision");
 
     setReport(res.data.executive_report);
   };
   const downloadPDF = async () => {
 
   const response = await axios.post(
-    "http://127.0.0.1:8000/download-report",
+    "https://ai-operations-command-center.onrender.com/download-report",
     {},
     {
       responseType: "blob"
